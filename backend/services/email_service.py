@@ -7,7 +7,15 @@ logger = logging.getLogger(__name__)
 
 class EmailService:
     def __init__(self):
-        self.sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
+        # Detect missing or placeholder SendGrid API key
+        api_key = settings.SENDGRID_API_KEY
+        if not api_key or api_key == "SG.placeholder" or not api_key.startswith("SG."):
+            logger.warning('SendGrid API key not configured or invalid. EmailService running in DEMO mode.')
+            self.demo_mode = True
+            self.sg = None
+        else:
+            self.demo_mode = False
+            self.sg = SendGridAPIClient(api_key)
         self.from_email = settings.SENDGRID_FROM_EMAIL
         self.from_name = settings.SENDGRID_FROM_NAME
 
@@ -44,6 +52,10 @@ class EmailService:
             html_content=content
         )
         
+        if self.demo_mode:
+            logger.warning(f"DEMO MODE: Skipping actual email send to {to_email}. OTP is logged above.")
+            return True
+
         try:
             response = self.sg.send(message)
             if response.status_code == 202:
@@ -51,14 +63,11 @@ class EmailService:
                 return True
             else:
                 logger.warning(f"SendGrid error status: {response.status_code}")
-                logger.warning(f"SendGrid error body: {response.body}")
-                logger.warning(f"SendGrid error headers: {response.headers}")
+                # ... existing logging ...
+                return False
         except Exception as e:
-            logger.warning(f"Detailed SendGrid Exception: {str(e)}")
-            # Demo/Development Mode: Even if SendGrid fails, return True so the flow continues.
-            # The OTP is already logged above for the developer to retrieve.
-            logger.warning("OTP sending failed (exception), but proceeding in Demo Mode. Check logs for code.")
-            return True
+            logger.error(f"Detailed SendGrid Exception: {str(e)}")
+            return False
 
     def send_welcome_email(self, to_email: str, password: str, role: str):
         """Send a welcome email to a new user created by an admin."""
@@ -97,6 +106,10 @@ class EmailService:
             html_content=content
         )
         
+        if self.demo_mode:
+            logger.warning(f"DEMO MODE: Skipping actual welcome email send to {to_email}. Credentials logged above.")
+            return True
+
         try:
             response = self.sg.send(message)
             if response.status_code == 202:
@@ -106,7 +119,7 @@ class EmailService:
                 logger.warning(f"SendGrid welcome email error status: {response.status_code}")
                 return False
         except Exception as e:
-            logger.warning(f"Detailed SendGrid Welcome Email Exception: {str(e)}")
+            logger.error(f"Detailed SendGrid Welcome Email Exception: {str(e)}")
             return False
 
 email_service = EmailService()
