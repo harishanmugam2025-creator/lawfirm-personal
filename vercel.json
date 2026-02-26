@@ -3,6 +3,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/((?!api|auth|.*\\..*).*)", "destination": "/index.html" }
+    { "source": "/api/(.*)", "destination": "https://clear-horses-send.loca.lt/api/$1" },
+    { "source": "/((?!api|auth|.*\\..*).*)", "destination": "/frontend/dist/index.html" }
   ]
 }
