@@ -1,7 +1,7 @@
 {
   "version": 2,
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://shaggy-women-mate.loca.lt/api/$1" },
+    { "source": "/api/(.*)", "destination": "https://full-beds-divide.loca.lt/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

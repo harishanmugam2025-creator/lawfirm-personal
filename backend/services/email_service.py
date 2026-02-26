@@ -106,10 +106,6 @@ class EmailService:
             html_content=content
         )
         
-        if self.demo_mode:
-            logger.warning(f"DEMO MODE: Skipping actual welcome email send to {to_email}. Credentials logged above.")
-            return True
-
         try:
             response = self.sg.send(message)
             if response.status_code == 202:
@@ -119,7 +115,7 @@ class EmailService:
                 logger.warning(f"SendGrid welcome email error status: {response.status_code}")
                 return False
         except Exception as e:
-            logger.error(f"Detailed SendGrid Welcome Email Exception: {str(e)}")
+            logger.warning(f"Detailed SendGrid Welcome Email Exception: {str(e)}")
             return False
 
 email_service = EmailService()
