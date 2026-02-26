@@ -3,8 +3,22 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://empty-pumas-call.loca.lt/api/$1" },
     { "source": "/auth/(.*)", "destination": "https://empty-pumas-call.loca.lt/auth/$1" },
+    { "source": "/api/(.*)", "destination": "https://empty-pumas-call.loca.lt/api/$1" },
+    { "source": "/analytics/(.*)", "destination": "https://empty-pumas-call.loca.lt/analytics/$1" },
+    { "source": "/case_analytics/(.*)", "destination": "https://empty-pumas-call.loca.lt/case_analytics/$1" },
+    { "source": "/documents/(.*)", "destination": "https://empty-pumas-call.loca.lt/documents/$1" },
+    { "source": "/workflows/(.*)", "destination": "https://empty-pumas-call.loca.lt/workflows/$1" },
+    { "source": "/prompts/(.*)", "destination": "https://empty-pumas-call.loca.lt/prompts/$1" },
+    { "source": "/analyze/(.*)", "destination": "https://empty-pumas-call.loca.lt/analyze/$1" },
+    { "source": "/executions/(.*)", "destination": "https://empty-pumas-call.loca.lt/executions/$1" },
+    { "source": "/audit_logs/(.*)", "destination": "https://empty-pumas-call.loca.lt/audit_logs/$1" },
+    { "source": "/compliance/(.*)", "destination": "https://empty-pumas-call.loca.lt/compliance/$1" },
+    { "source": "/users/(.*)", "destination": "https://empty-pumas-call.loca.lt/users/$1" },
+    { "source": "/rbac/(.*)", "destination": "https://empty-pumas-call.loca.lt/rbac/$1" },
+    { "source": "/research/(.*)", "destination": "https://empty-pumas-call.loca.lt/research/$1" },
+    { "source": "/health", "destination": "https://empty-pumas-call.loca.lt/health" },
+    { "source": "/metrics", "destination": "https://empty-pumas-call.loca.lt/metrics" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
