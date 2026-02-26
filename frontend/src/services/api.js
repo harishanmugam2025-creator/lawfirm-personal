@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// Point to the same origin so Vite's proxy can intercept requests starting with /auth
-const API_BASE_URL = import.meta.env.VITE_API_URL || "";
+// Point to the same origin so Vite's proxy can intercept requests starting with /api
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
 const api = axios.create({
   baseURL: API_BASE_URL,

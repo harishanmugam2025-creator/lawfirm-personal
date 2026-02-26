@@ -30,27 +30,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount routers
-app.include_router(auth.router)
-app.include_router(documents.router)
-app.include_router(workflows.router)
-app.include_router(prompts.router)
-app.include_router(analyze.router)
-app.include_router(executions.router)
-app.include_router(audit_logs.router)
-app.include_router(compliance.router)
-app.include_router(users.router)
-app.include_router(rbac.router)
-app.include_router(legal_research.router)
-app.include_router(analytics.router)
-app.include_router(case_analytics.router)
+# Create a master API router
+api_router = APIRouter(prefix="/api")
 
+# Mount routers to api_router
+api_router.include_router(auth.router)
+api_router.include_router(documents.router)
+api_router.include_router(workflows.router)
+api_router.include_router(prompts.router)
+api_router.include_router(analyze.router)
+api_router.include_router(executions.router)
+api_router.include_router(audit_logs.router)
+api_router.include_router(compliance.router)
+api_router.include_router(users.router)
+api_router.include_router(rbac.router)
+api_router.include_router(legal_research.router)
+api_router.include_router(analytics.router)
+api_router.include_router(case_analytics.router)
 
-@app.get("/metrics")
+# Include the master router in the app
+app.include_router(api_router)
+
+@app.get("/api/metrics")
 async def metrics():
     return get_metrics_response()
 
-@app.get("/health")
+@app.get("/api/health")
 async def health_check():
     return {"status": "healthy", "service": "veritas-ai-api"}
 
