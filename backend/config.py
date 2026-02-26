@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     OLLAMA_URL: str = "http://localhost:11434"
     
     # SendGrid Settings
-    SENDGRID_API_KEY: str = "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"
+    SENDGRID_API_KEY: str = "SG.placeholder"
     SENDGRID_FROM_EMAIL: str = "ravanthsri20@gmail.com"
     SENDGRID_FROM_NAME: str = "Veritas AI"
 
