@@ -38,9 +38,9 @@ def setup_db():
 
 client = TestClient(app)
 
-REGISTER_URL = "/auth/register"
-LOGIN_URL = "/auth/login"
-ME_URL = "/auth/me"
+REGISTER_URL = "/api/auth/register"
+LOGIN_URL = "/api/auth/login"
+ME_URL = "/api/auth/me"
 
 TEST_USER = {
     "name": "Test User",

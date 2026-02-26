@@ -1,5 +1,8 @@
 import io
+import os
 from unittest.mock import AsyncMock, patch
+
+os.environ["TESTING"] = "true"
 
 import pytest
 from fastapi.testclient import TestClient
@@ -52,10 +55,10 @@ def mock_opa():
 
 client = TestClient(app)
 
-REGISTER_URL = "/auth/register"
-LOGIN_URL = "/auth/login"
-UPLOAD_URL = "/documents/upload"
-LIST_URL = "/documents"
+REGISTER_URL = "/api/auth/register"
+LOGIN_URL = "/api/auth/login"
+UPLOAD_URL = "/api/documents/upload"
+LIST_URL = "/api/documents"
 
 TEST_USER = {
     "name": "Doc User",

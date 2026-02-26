@@ -52,8 +52,8 @@ def setup_db():
 
 client = TestClient(app)
 
-REGISTER_URL = "/auth/register"
-LOGIN_URL = "/auth/login"
+REGISTER_URL = "/api/auth/register"
+LOGIN_URL = "/api/auth/login"
 
 
 def _register_and_login(role: str = "associate") -> str:
@@ -181,7 +181,7 @@ def test_permissions_endpoint():
         return_value=fake_perms,
     ):
         resp = client.get(
-            "/auth/permissions",
+            "/api/auth/permissions",
             headers={"Authorization": f"Bearer {token}"},
         )
     assert resp.status_code == 200
@@ -214,7 +214,7 @@ def test_upload_allowed_by_opa():
         return_value=True,
     ):
         resp = client.post(
-            "/documents/upload",
+            "/api/documents/upload",
             files={"file": ("test.pdf", io.BytesIO(pdf), "application/pdf")},
             headers={"Authorization": f"Bearer {token}"},
         )
@@ -233,7 +233,7 @@ def test_upload_denied_by_opa():
         return_value=False,
     ):
         resp = client.post(
-            "/documents/upload",
+            "/api/documents/upload",
             files={"file": ("test.pdf", io.BytesIO(pdf), "application/pdf")},
             headers={"Authorization": f"Bearer {token}"},
         )

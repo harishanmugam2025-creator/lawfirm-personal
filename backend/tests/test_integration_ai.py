@@ -1,5 +1,8 @@
 import io
 import json
+import os
+
+os.environ["TESTING"] = "true"
 
 import pytest
 from unittest.mock import AsyncMock, patch
@@ -89,12 +92,12 @@ async def test_end_to_end_ai_analysis():
         db.commit()
         db.close()
 
-        await client.post("/auth/register", json=partner_data, params={"otp_code": "123456"})
-        await client.post("/auth/register", json=admin_data, params={"otp_code": "123456"})
+        await client.post("/api/auth/register", json=partner_data, params={"otp_code": "123456"})
+        await client.post("/api/auth/register", json=admin_data, params={"otp_code": "123456"})
 
         # 2. Login to get both tokens
         p_resp = await client.post(
-            "/auth/login",
+            "/api/auth/login",
             data={"username": partner_data["email"], "password": partner_data["password"]}
         )
         assert p_resp.status_code == 200, f"Login failed: {p_resp.text}"
@@ -102,7 +105,7 @@ async def test_end_to_end_ai_analysis():
         partner_headers = {"Authorization": f"Bearer {partner_token}"}
 
         a_resp = await client.post(
-            "/auth/login",
+            "/api/auth/login",
             data={"username": admin_data["email"], "password": admin_data["password"]}
         )
         assert a_resp.status_code == 200, f"Login failed: {a_resp.text}"
@@ -121,7 +124,7 @@ async def test_end_to_end_ai_analysis():
         files = {"file": ("test_doc.pdf", dummy_pdf, "application/pdf")}
 
         with patch("services.document_service.pdfplumber.open", side_effect=Exception("mocked")):
-            doc_resp = await client.post("/documents/upload", files=files, headers=partner_headers)
+            doc_resp = await client.post("/api/documents/upload", files=files, headers=partner_headers)
 
         assert doc_resp.status_code == 201
         doc_id = doc_resp.json()["id"]
@@ -133,7 +136,7 @@ async def test_end_to_end_ai_analysis():
             "system_prompt": "You are a legal AI. Analyze for GDPR compliance.",
             "is_active": True
         }
-        prompt_resp = await client.post("/prompts", json=prompt_data, headers=admin_headers)
+        prompt_resp = await client.post("/api/prompts", json=prompt_data, headers=admin_headers)
         assert prompt_resp.status_code == 201
 
         # 5. Analyze the document (will gracefully degrade since Ollama is offline)
@@ -141,7 +144,7 @@ async def test_end_to_end_ai_analysis():
             "document_id": doc_id,
             "analysis_type": "gdpr"
         }
-        analyze_resp = await client.post("/analyze", json=analyze_req, headers=partner_headers)
+        analyze_resp = await client.post("/api/analyze", json=analyze_req, headers=partner_headers)
         assert analyze_resp.status_code == 201
 
         result = analyze_resp.json()
