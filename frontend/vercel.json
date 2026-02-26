@@ -1,7 +1,7 @@
 {
   "version": 2,
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://full-beds-divide.loca.lt/api/$1" },
+    { "source": "/api/(.*)", "destination": "https://clear-horses-send.loca.lt/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
