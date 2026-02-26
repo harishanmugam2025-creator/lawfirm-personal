@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.routes import auth, documents, workflows, prompts, analyze, executions, audit_logs, compliance, users, rbac, legal_research
