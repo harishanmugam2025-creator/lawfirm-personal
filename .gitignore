@@ -56,3 +56,5 @@ backend/uploads/*
 
 # Temporary/custom output files
 git_status_out.txt
+.vercel
+.env*.local
