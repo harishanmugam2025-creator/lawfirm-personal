@@ -20,8 +20,8 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  BACKEND_IMAGE: ghcr.io/rav4353/lawfirm/backend
-  FRONTEND_IMAGE: ghcr.io/rav4353/lawfirm/frontend
+  BACKEND_IMAGE: ghcr.io/${{ github.repository_owner }}/lawfirm/backend
+  FRONTEND_IMAGE: ghcr.io/${{ github.repository_owner }}/lawfirm/frontend
 
 jobs:
   # ─── Build & Push to GHCR ──────────────
