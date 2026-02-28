@@ -90,6 +90,23 @@ def forgot_password(data: ForgotPasswordRequest, db: Session = Depends(get_db)):
     return {"message": "If the email is registered, you will receive an OTP code."}
 
 
+@router.get("/diag/email")
+def diag_email():
+    """Diagnostic endpoint to check email service configuration."""
+    from services.email_service import email_service
+    from config import settings
+    
+    api_key = settings.SENDGRID_API_KEY
+    is_valid_format = api_key.startswith("SG.") if api_key else False
+    
+    return {
+        "demo_mode": email_service.demo_mode,
+        "debug_mode": settings.DEBUG_MODE,
+        "from_email": settings.SENDGRID_FROM_EMAIL,
+        "api_key_valid_format": is_valid_format,
+        "api_key_prefix": api_key[:7] + "..." if api_key else "None"
+    }
+
 @router.post("/reset-password")
 def reset_password(data: ResetPassword, db: Session = Depends(get_db)):
     """Reset password using OTP."""
