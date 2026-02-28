@@ -12,6 +12,9 @@ from sqlalchemy.orm import Session
 from config import settings
 from repositories import document_repository
 from services import audit_service
+import logging
+
+logger = logging.getLogger(__name__)
 
 # MinIO Client Initialization
 s3_client = boto3.client(
@@ -50,23 +53,29 @@ async def upload_document(db: Session, file: UploadFile, user_id: str):
             detail=f"File exceeds maximum size of {MAX_FILE_SIZE // (1024 * 1024)} MB.",
         )
 
-    # --- Save to MinIO ---
-    ensure_bucket_exists()
+    # --- Save to MinIO or Local Fallback ---
     file_id = str(uuid.uuid4())
     object_key = f"{user_id}/{file_id}.pdf"
     
     try:
+        ensure_bucket_exists()
         s3_client.put_object(
             Bucket=settings.MINIO_BUCKET,
             Key=object_key,
             Body=contents,
             ContentType=file.content_type
         )
+        storage_type = "minio"
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to upload to storage: {str(e)}"
-        )
+        # Fallback to local storage if MinIO is unavailable (e.g., on Render)
+        logger.warning(f"MinIO upload failed, falling back to local storage: {e}")
+        local_dir = Path("uploads") / user_id
+        local_dir.mkdir(parents=True, exist_ok=True)
+        local_path = local_dir / f"{file_id}.pdf"
+        with open(local_path, "wb") as f:
+            f.write(contents)
+        object_key = str(local_path)
+        storage_type = "local"
 
     # --- Extract text with pdfplumber (using memory stream) ---
     extracted_text = ""
@@ -154,11 +163,19 @@ def delete_document(
             detail="Document not found.",
         )
 
-    # Remove file from MinIO
+    # Remove file from MinIO or Local Storage
     try:
         s3_client.delete_object(Bucket=settings.MINIO_BUCKET, Key=doc.disk_path)
     except Exception as e:
-        print(f"S3 Delete Error: {e}")
+        logger.warning(f"S3 Delete Error (might be local file): {e}")
+    
+    # Also attempt to delete locally if it was saved via fallback
+    local_path = Path(doc.disk_path)
+    if local_path.exists() and local_path.is_file():
+        try:
+            local_path.unlink()
+        except Exception as e:
+            logger.error(f"Failed to delete local file: {e}")
 
     document_repository.delete_document(db, doc)
 
