@@ -1,12 +1,13 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.routes import auth, documents, workflows, prompts, analyze, executions, audit_logs, compliance, users, rbac, legal_research
 from api import analytics, case_analytics
-from models.database import Base, engine
+from models.database import Base, engine, get_db
 from services.metrics_service import PrometheusMiddleware, get_metrics_response
+from sqlalchemy.orm import Session
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -55,9 +56,18 @@ app.include_router(api_router)
 async def metrics():
     return get_metrics_response()
 
+@app.get("/api/ping-db")
+async def ping_db(db: Session = Depends(get_db)):
+    try:
+        db.execute("SELECT 1")
+        return {"status": "ok"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/api/health")
 async def health_check():
     return {"status": "healthy", "service": "veritas-ai-api"}
+
 
 @app.get("/")
 async def root():

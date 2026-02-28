@@ -13,7 +13,8 @@ from models.analysis import AnalysisResult
 from models.lawfirm_case import LawfirmCase
 from models.lawfirm_task import LawfirmTask
 from models.timesheet import Timesheet
-from api.dependencies.auth import get_current_user
+from api.dependencies import get_current_user
+
 from schemas.analytics import (
     DashboardMetricsResponse, RevenueTrend, TopClient, ClientRevenue, ComplianceDistribution,
     TeamOverviewResponse, TeamMemberDetails, TeamPerformanceData, WorkloadDistribution, TopPerformers,

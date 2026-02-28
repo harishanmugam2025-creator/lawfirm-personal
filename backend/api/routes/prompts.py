@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from api.dependencies.auth import get_current_user, require_permission
+from api.dependencies import get_current_user, require_permission
 from models.database import get_db
 from models.user import User
 from schemas.prompt import PromptVersionCreate, PromptVersionResponse, PromptListResponse

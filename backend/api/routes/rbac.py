@@ -6,7 +6,7 @@ IT Admin can edit; all authenticated users can view.
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from api.dependencies.auth import get_current_user, require_permission
+from api.dependencies import get_current_user, require_permission
 from models.database import get_db
 from models.user import User
 from schemas.rbac import (

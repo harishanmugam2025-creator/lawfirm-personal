@@ -1,14 +1,22 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from api.dependencies.auth import get_current_user
+from api.dependencies import get_current_user
+
 from models.database import get_db
 from models.user import User
 from schemas.auth import UserCreate, UserResponse, Token, ForgotPasswordRequest, ResetPassword
 from services import auth_service, opa_service, audit_service
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+
+class LoginJSON(BaseModel):
+    email: str
+    password: str
+
 
 
 @router.post("/register", response_model=UserResponse, status_code=201)
@@ -41,6 +49,13 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     Uses OAuth2 form: 'username' field = email, 'password' field = password.
     """
     return auth_service.authenticate_user(db, form_data.username, form_data.password)
+
+
+@router.post("/login-json", response_model=Token)
+def login_json(payload: LoginJSON, db: Session = Depends(get_db)):
+    """Authenticate with JSON body instead of form data."""
+    return auth_service.authenticate_user(db, payload.email, payload.password)
+
 
 
 @router.get("/me", response_model=UserResponse)

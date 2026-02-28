@@ -53,8 +53,12 @@ class EmailService:
         )
         
         if self.demo_mode:
-            logger.warning(f"DEMO MODE: Skipping actual email send to {to_email}. OTP is logged above.")
-            return True
+            if settings.DEBUG_MODE:
+                logger.warning(f"DEMO MODE: Skipping actual email send to {to_email}. OTP is logged above.")
+                return True
+            else:
+                logger.error(f"Email service is in DEMO MODE but DEBUG_MODE is False. Cannot send email to {to_email}.")
+                return False
 
         try:
             response = self.sg.send(message)
@@ -62,15 +66,15 @@ class EmailService:
                 logger.warning(f"Email sent successfully to {to_email}")
                 return True
             else:
-                logger.warning(f"SendGrid error status: {response.status_code}")
-                # ... existing logging ...
+                logger.error(f"SendGrid error status: {response.status_code}")
+                try:
+                    logger.error(f"SendGrid error body: {response.body}")
+                except:
+                    pass
                 return False
         except Exception as e:
             logger.error(f"Detailed SendGrid Exception: {str(e)}")
-            # Fallback to demo mode if we get a 401 Unauthorized to prevent 500 errors
-            if "401" in str(e):
-                 logger.warning("SendGrid 401 Unauthorized. Falling back to DEMO MODE. OTP logged above.")
-                 return True
+            # Even on 401, we should NOT return True if we want the user to know it failed.
             return False
 
     def send_welcome_email(self, to_email: str, password: str, role: str):

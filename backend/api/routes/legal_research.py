@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from models.database import get_db
-from api.dependencies.auth import get_current_user
+from api.dependencies import get_current_user
 from models.user import User
 from schemas.legal_research import SearchQueryRequest, SearchResultResponse, ResearchQueryResponse, CaseResponse, SavedCaseBase
 from services import legal_research_service, audit_service
