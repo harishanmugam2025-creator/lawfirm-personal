@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/useAuth";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { getDashboardSummary } from "@/services/dashboard";
 
@@ -43,6 +43,7 @@ import {
   CheckCircle2,
   AlertCircle,
   FileWarning,
+  X,
 } from "lucide-react";
 
 /* ── role config ── */
