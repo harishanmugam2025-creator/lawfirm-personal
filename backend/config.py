@@ -19,6 +19,17 @@ class Settings(BaseSettings):
     SENDGRID_API_KEY: str = "SG.placeholder"
     SENDGRID_FROM_EMAIL: str = "ravanthsri20@gmail.com"
     SENDGRID_FROM_NAME: str = "Veritas AI"
+    
+    # Resend Settings
+    RESEND_API_KEY: str | None = None
+    RESEND_FROM_EMAIL: str | None = None
+    
+    # SMTP Settings (Alternative)
+    SMTP_HOST: str | None = None
+    SMTP_PORT: int = 587
+    SMTP_USER: str | None = None
+    SMTP_PASSWORD: str | None = None
+    SMTP_TLS: bool = True
 
     # MinIO / S3 Settings
     MINIO_ENDPOINT: str = "localhost:9000"

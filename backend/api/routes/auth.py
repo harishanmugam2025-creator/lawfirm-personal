@@ -96,15 +96,24 @@ def diag_email():
     from services.email_service import email_service
     from config import settings
     
-    api_key = settings.SENDGRID_API_KEY
-    is_valid_format = api_key.startswith("SG.") if api_key else False
-    
     return {
         "demo_mode": email_service.demo_mode,
         "debug_mode": settings.DEBUG_MODE,
         "from_email": settings.SENDGRID_FROM_EMAIL,
-        "api_key_valid_format": is_valid_format,
-        "api_key_prefix": api_key[:7] + "..." if api_key else "None"
+        "backends": {
+            "sendgrid": {
+                "configured": email_service.use_sendgrid,
+                "api_key_prefix": settings.SENDGRID_API_KEY[:7] + "..." if settings.SENDGRID_API_KEY else "None"
+            },
+            "resend": {
+                "configured": email_service.use_resend,
+                "api_key_prefix": settings.RESEND_API_KEY[:7] + "..." if settings.RESEND_API_KEY else "None"
+            },
+            "smtp": {
+                "configured": email_service.use_smtp,
+                "host": settings.SMTP_HOST
+            }
+        }
     }
 
 @router.post("/reset-password")
