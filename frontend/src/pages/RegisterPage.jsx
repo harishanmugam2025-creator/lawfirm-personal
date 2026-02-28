@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { motion as Motion } from "framer-motion";
@@ -32,93 +32,38 @@ import {
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1); // 1: Details, 2: OTP
   const [serverError, setServerError] = useState("");
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isSubmittingStep1, setIsSubmittingStep1] = useState(false);
-  const [formData, setFormData] = useState(null);
-
-  const ResendOTPButton = ({ email }) => {
-    const [cooldown, setCooldown] = useState(0);
-    const [isResending, setIsResending] = useState(false);
-
-    useEffect(() => {
-      let timer;
-      if (cooldown > 0) {
-        timer = setInterval(() => setCooldown(c => c - 1), 1000);
-      }
-      return () => clearInterval(timer);
-    }, [cooldown]);
-
-    const handleResend = async () => {
-      if (cooldown > 0 || isResending) return;
-      setIsResending(true);
-      try {
-        await api.post("/auth/registration-otp", { email });
-        setCooldown(60);
-      } catch (err) {
-        console.error("Failed to resend OTP", err);
-      } finally {
-        setIsResending(false);
-      }
-    };
-
-    return (
-      <button
-        type="button"
-        onClick={handleResend}
-        disabled={cooldown > 0 || isResending}
-        className="text-xs font-semibold text-primary hover:underline disabled:text-muted-foreground disabled:no-underline"
-      >
-        {isResending ? "Sending..." : cooldown > 0 ? `Resend code in ${cooldown}s` : "Resend code"}
-      </button>
-    );
-  };
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
     handleSubmit,
     watch,
-    formState: { errors, isSubmitting: isSubmittingStep2 },
+    formState: { errors },
   } = useForm({
-    defaultValues: { name: "", email: "", password: "", confirmPassword: "", otp_code: "" },
+    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
   });
 
-  const onSubmitStep1 = async (data) => {
+  const onSubmit = async (data) => {
     setServerError("");
-    setIsSubmittingStep1(true);
+    setIsSubmitting(true);
     try {
-      await api.post("/auth/registration-otp", { email: data.email });
-      setFormData(data);
-      setStep(2);
-    } catch (err) {
-      setServerError(
-        err.response?.data?.detail || "Failed to send verification code. Please try again."
-      );
-    } finally {
-      setIsSubmittingStep1(false);
-    }
-  };
-
-  const onSubmitStep2 = async (data) => {
-    setServerError("");
-    try {
-      // Need to update AuthContext to support calling register with OTP
-      // For now, let's call API directly to ensure it works
       await api.post("/auth/register", {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      }, { params: { otp_code: data.otp_code } });
-      
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      });
       setSuccess(true);
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
       setServerError(
         err.response?.data?.detail || "Registration failed. Please try again."
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -163,12 +108,10 @@ export default function RegisterPage() {
         <Card className="border-border/50 bg-card/80 backdrop-blur">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold">
-              {step === 1 ? "Create your account" : "Verify your email"}
+              Create your account
             </CardTitle>
             <CardDescription>
-              {step === 1 
-                ? "Join Veritas AI and streamline your legal workflow"
-                : `Enter the code sent to ${formData?.email}`}
+              Join Veritas AI and streamline your legal workflow
             </CardDescription>
           </CardHeader>
 
@@ -184,221 +127,156 @@ export default function RegisterPage() {
               </Motion.div>
             )}
 
-            {step === 1 ? (
-              <form
-                id="register-form"
-                onSubmit={handleSubmit(onSubmitStep1)}
-                noValidate
-                className="space-y-5"
-              >
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="name"
-                      placeholder="John Doe"
-                      className="pl-9"
-                      {...register("name", { required: "Full name is required" })}
-                    />
-                  </div>
-                  {errors.name && (
-                    <p className="flex items-center gap-1 text-xs text-destructive">
-                      <AlertCircle className="h-3 w-3" /> {errors.name.message}
-                    </p>
-                  )}
+            <form
+              id="register-form"
+              onSubmit={handleSubmit(onSubmit)}
+              noValidate
+              className="space-y-5"
+            >
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="name"
+                    placeholder="John Doe"
+                    className="pl-9"
+                    {...register("name", { required: "Full name is required" })}
+                  />
                 </div>
+                {errors.name && (
+                  <p className="flex items-center gap-1 text-xs text-destructive">
+                    <AlertCircle className="h-3 w-3" /> {errors.name.message}
+                  </p>
+                )}
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="register-email"
-                      type="email"
-                      placeholder="you@lawfirm.com"
-                      className="pl-9"
-                      {...register("email", {
-                        required: "Email is required",
-                        pattern: {
-                          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                          message: "Enter a valid email address",
-                        },
-                      })}
-                    />
-                  </div>
-                  {errors.email && (
-                    <p className="flex items-center gap-1 text-xs text-destructive">
-                      <AlertCircle className="h-3 w-3" /> {errors.email.message}
-                    </p>
-                  )}
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="register-email"
+                    type="email"
+                    placeholder="you@lawfirm.com"
+                    className="pl-9"
+                    {...register("email", {
+                      required: "Email is required",
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: "Enter a valid email address",
+                      },
+                    })}
+                  />
                 </div>
+                {errors.email && (
+                  <p className="flex items-center gap-1 text-xs text-destructive">
+                    <AlertCircle className="h-3 w-3" /> {errors.email.message}
+                  </p>
+                )}
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="register-password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Min. 8 characters"
-                      className="pl-9 pr-10"
-                      {...register("password", {
-                        required: "Password is required",
-                        minLength: {
-                          value: 8,
-                          message: "Password must be at least 8 characters",
-                        },
-                      })}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
-                  {errors.password && (
-                    <p className="flex items-center gap-1 text-xs text-destructive">
-                      <AlertCircle className="h-3 w-3" />{" "}
-                      {errors.password.message}
-                    </p>
-                  )}
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="register-password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Min. 8 characters"
+                    className="pl-9 pr-10"
+                    {...register("password", {
+                      required: "Password is required",
+                      minLength: {
+                        value: 8,
+                        message: "Password must be at least 8 characters",
+                      },
+                    })}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
+                {errors.password && (
+                  <p className="flex items-center gap-1 text-xs text-destructive">
+                    <AlertCircle className="h-3 w-3" />{" "}
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="register-confirmPassword"
-                      type={showConfirmPassword ? "text" : "password"}
-                      placeholder="Re-enter your password"
-                      className="pl-9 pr-10"
-                      {...register("confirmPassword", {
-                        required: "Please confirm your password",
-                        validate: (val) =>
-                          val === watch("password") || "Passwords do not match",
-                      })}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
-                  {errors.confirmPassword && (
-                    <p className="flex items-center gap-1 text-xs text-destructive">
-                      <AlertCircle className="h-3 w-3" />{" "}
-                      {errors.confirmPassword.message}
-                    </p>
-                  )}
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="register-confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Re-enter your password"
+                    className="pl-9 pr-10"
+                    {...register("confirmPassword", {
+                      required: "Please confirm your password",
+                      validate: (val) =>
+                        val === watch("password") || "Passwords do not match",
+                    })}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
-              </form>
-            ) : (
-              <form
-                id="otp-form"
-                onSubmit={handleSubmit(onSubmitStep2)}
-                className="space-y-5"
-              >
-                <div className="space-y-2">
-                  <Label htmlFor="otp">Verification Code</Label>
-                  <div className="relative">
-                    <KeyRound className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="register-otp"
-                      placeholder="6-digit code"
-                      className="pl-9"
-                      {...register("otp_code", { 
-                        required: "OTP code is required",
-                        pattern: { value: /^\d{6}$/, message: "Enter 6-digit code" }
-                      })}
-                    />
-                  </div>
-                  {errors.otp_code && (
-                    <p className="text-xs text-destructive">{errors.otp_code.message}</p>
-                  )}
-                  <div className="flex justify-end mt-1">
-                    <ResendOTPButton email={formData?.email} />
-                  </div>
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isSubmittingStep2}
-                >
-                  {isSubmittingStep2 ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Verifying...
-                    </>
-                  ) : (
-                    "Verify & Create Account"
-                  )}
-                </Button>
-                <Button
-                  variant="outline"
-                  type="button"
-                  className="w-full"
-                  onClick={() => setStep(1)}
-                  disabled={isSubmittingStep2}
-                >
-                  Back to Details
-                </Button>
-              </form>
-            )}
+                {errors.confirmPassword && (
+                  <p className="flex items-center gap-1 text-xs text-destructive">
+                    <AlertCircle className="h-3 w-3" />{" "}
+                    {errors.confirmPassword.message}
+                  </p>
+                )}
+              </div>
+            </form>
           </CardContent>
 
           <CardFooter className="flex flex-col gap-4">
-            {step === 1 && (
-              <>
-                <Button
-                  type="submit"
-                  form="register-form"
-                  className="w-full"
-                  disabled={isSubmittingStep1}
-                >
-                  {isSubmittingStep1 ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending Code...
-                    </>
-                  ) : (
-                    "Create Account"
-                  )}
-                </Button>
+            <Button
+              type="submit"
+              form="register-form"
+              className="w-full"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating Account...
+                </>
+              ) : (
+                "Create Account"
+              )}
+            </Button>
 
-                <Separator />
+            <Separator />
 
-                <p className="text-center text-sm text-muted-foreground">
-                  Already have an account?{" "}
-                  <Link
-                    to="/login"
-                    className="font-medium text-primary underline-offset-4 hover:underline"
-                  >
-                    Sign in
-                  </Link>
-                </p>
-              </>
-            )}
-            {step === 2 && (
+            <p className="text-center text-sm text-muted-foreground">
+              Already have an account?{" "}
               <Link
                 to="/login"
-                className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-primary"
+                className="font-medium text-primary underline-offset-4 hover:underline"
               >
-                <ArrowLeft className="h-4 w-4" />
-                Back to sign in
+                Sign in
               </Link>
-            )}
+            </p>
           </CardFooter>
         </Card>
       </Motion.div>

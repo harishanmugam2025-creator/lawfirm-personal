@@ -4,6 +4,6 @@
   "trailingSlash": false,
   "rewrites": [
     { "source": "/api/(.*)", "destination": "https://veritas-ai-backend-24zo.onrender.com/api/$1" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
