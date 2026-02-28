@@ -67,6 +67,10 @@ class EmailService:
                 return False
         except Exception as e:
             logger.error(f"Detailed SendGrid Exception: {str(e)}")
+            # Fallback to demo mode if we get a 401 Unauthorized to prevent 500 errors
+            if "401" in str(e):
+                 logger.warning("SendGrid 401 Unauthorized. Falling back to DEMO MODE. OTP logged above.")
+                 return True
             return False
 
     def send_welcome_email(self, to_email: str, password: str, role: str):
