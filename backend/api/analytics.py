@@ -235,15 +235,22 @@ def get_dashboard_summary(
              border = "border-primary/20"
 
         # Calculate relative time
-        delta = datetime.now(log.timestamp.tzinfo) - log.timestamp
-        if delta.seconds < 60:
+        now = datetime.now(timezone.utc)
+        log_time = log.timestamp
+        if log_time.tzinfo is None:
+            log_time = log_time.replace(tzinfo=timezone.utc)
+            
+        delta = now - log_time
+        
+        if delta.total_seconds() < 60:
             time_str = "Just now"
-        elif delta.seconds < 3600:
-            time_str = f"{delta.seconds // 60} mins ago"
-        elif delta.days < 1:
-            time_str = f"{delta.seconds // 3600} hours ago"
+        elif delta.total_seconds() < 3600:
+            time_str = f"{int(delta.total_seconds() // 60)} mins ago"
+        elif delta.total_seconds() < 86400:
+            time_str = f"{int(delta.total_seconds() // 3600)} hours ago"
         else:
-            time_str = "Yesterday" if delta.days == 1 else f"{delta.days} days ago"
+            days = delta.days
+            time_str = "Yesterday" if days == 1 else f"{days} days ago"
 
         recent_activity.append(ActivityLogItem(
             id=log.id,

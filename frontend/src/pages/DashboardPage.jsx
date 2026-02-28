@@ -144,6 +144,7 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showAllActivity, setShowAllActivity] = useState(false);
 
   const cfg = roleConfig[user?.role] || roleConfig.paralegal;
   const RoleIcon = cfg.icon;
@@ -312,7 +313,14 @@ export default function DashboardPage() {
                 <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6">
                     <div className="flex items-center justify-between">
                         <h2 className="text-2xl font-bold tracking-tight text-foreground">Activity Log</h2>
-                        <Button variant="outline" size="sm" className="rounded-full h-8 px-4 text-xs font-semibold">View All</Button>
+                        <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="rounded-full h-8 px-4 text-xs font-semibold"
+                            onClick={() => setShowAllActivity(true)}
+                        >
+                            View All
+                        </Button>
                     </div>
                     
                     <div className="rounded-2xl border border-border/50 bg-card/40 backdrop-blur-xl shadow-lg overflow-hidden">
@@ -412,6 +420,86 @@ export default function DashboardPage() {
             </div>
         </motion.div>
       </main>
+
+      {/* ── Activity Log Modal ── */}
+      <AnimatePresence>
+        {showAllActivity && (
+          <div className="fixed inset-0 z-50 flex items-start justify-end">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-background/60 backdrop-blur-sm"
+              onClick={() => setShowAllActivity(false)}
+            />
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="relative h-full w-full max-w-md border-l border-border bg-card shadow-2xl overflow-hidden flex flex-col"
+            >
+              <div className="p-6 border-b border-border/50 flex items-center justify-between bg-muted/20">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
+                    <Clock className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold">Activity Log</h3>
+                    <p className="text-xs text-muted-foreground">Comprehensive system audit</p>
+                  </div>
+                </div>
+                <Button variant="ghost" size="icon" onClick={() => setShowAllActivity(false)} className="rounded-full">
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-2">
+                <div className="space-y-1">
+                  {loading ? (
+                    <div className="flex justify-center py-12">
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : (data?.recent_activity || []).length === 0 ? (
+                    <p className="p-8 text-center text-sm text-muted-foreground">No activities found.</p>
+                  ) : (
+                    data.recent_activity.map((activity) => {
+                      const Icon = ICON_MAP[activity.icon] || CheckCircle2;
+                      return (
+                        <div 
+                          key={activity.id} 
+                          className="flex items-center gap-4 p-4 rounded-xl hover:bg-muted/30 transition-colors border border-transparent hover:border-border/40"
+                        >
+                          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${activity.bg} ${activity.border}`}>
+                            <Icon className={`h-4 w-4 ${activity.color}`} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-foreground truncate">{activity.title}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[11px] font-medium text-muted-foreground">{activity.type}</span>
+                              <span className="h-1 w-1 rounded-full bg-border" />
+                              <span className="text-[11px] font-medium text-muted-foreground">{activity.time}</span>
+                            </div>
+                          </div>
+                          <Badge variant="outline" className={`px-2 py-0.5 text-[9px] uppercase font-bold rounded-md ${activity.bg} ${activity.color} ${activity.border}`}>
+                            {activity.status}
+                          </Badge>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+              
+              <div className="p-4 border-t border-border/50 bg-muted/10">
+                <Button variant="outline" className="w-full rounded-xl gap-2 font-bold" onClick={() => navigate("/audit-logs")}>
+                  Full Audit Trail <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

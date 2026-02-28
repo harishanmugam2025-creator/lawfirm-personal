@@ -193,6 +193,7 @@ function CreateUserModal({ open, onClose, onCreated }) {
                 <SelectItem value="paralegal">Paralegal</SelectItem>
                 <SelectItem value="associate">Associate</SelectItem>
                 <SelectItem value="partner">Partner</SelectItem>
+                <SelectItem value="it_admin">IT Admin</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -214,7 +215,7 @@ function CreateUserModal({ open, onClose, onCreated }) {
 
 /* ── Edit User Modal ── */
 function EditUserModal({ open, user, onClose, onUpdated }) {
-  const [form, setForm] = useState({ name: "", role: "", password: "" });
+  const [form, setForm] = useState({ name: "", role: "paralegal", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -296,7 +297,7 @@ function EditUserModal({ open, user, onClose, onUpdated }) {
             <Label>Role</Label>
             <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v })}>
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="paralegal">Paralegal</SelectItem>

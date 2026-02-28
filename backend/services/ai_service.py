@@ -43,9 +43,18 @@ DOCUMENT TEXT:
         }
     }
 
+    headers = {}
+    api_key = getattr(settings, "OLLAMA_API_KEY", None)
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+
     try:
         async with httpx.AsyncClient(timeout=INFERENCE_TIMEOUT) as client:
-            response = await client.post(f"{OLLAMA_URL}/api/generate", json=payload)
+            response = await client.post(
+                f"{OLLAMA_URL}/api/generate", 
+                json=payload,
+                headers=headers
+            )
             response.raise_for_status()
             
             data = response.json()

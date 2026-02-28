@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     
     OPA_URL: str = "http://localhost:8181"
     OLLAMA_URL: str = "http://localhost:11434"
+    OLLAMA_API_KEY: str | None = None
     
     # SendGrid Settings
     SENDGRID_API_KEY: str = "SG.placeholder"
