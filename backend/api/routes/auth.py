@@ -20,7 +20,7 @@ class LoginJSON(BaseModel):
 
 
 @router.post("/register", response_model=UserResponse, status_code=201)
-def register(user_data: UserCreate, otp_code: str, db: Session = Depends(get_db)):
+def register(user_data: UserCreate, otp_code: str = None, db: Session = Depends(get_db)):
     """Register a new user account with OTP verification."""
     user = auth_service.register_user(db, user_data, otp_code)
     
