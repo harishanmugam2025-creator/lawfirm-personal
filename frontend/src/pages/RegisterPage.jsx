@@ -310,6 +310,9 @@ export default function RegisterPage() {
                       <AlertCircle className="h-3 w-3" /> {errors.otpCode.message}
                     </p>
                   )}
+                  <p className="text-xs text-center text-muted-foreground mt-4 border-t border-border pt-3">
+                    <strong>Demo Mode Active:</strong> If you don't receive an email (due to free-tier provider limits), you can bypass verification by entering <strong>123456</strong>.
+                  </p>
                 </Motion.div>
               )}
             </form>

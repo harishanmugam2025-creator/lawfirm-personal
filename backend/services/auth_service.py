@@ -40,12 +40,14 @@ def decode_access_token(token: str) -> dict:
 
 def register_user(db: Session, user_data: UserCreate, otp_code: str):
     """Verify OTP and register a new user."""
-    is_valid = otp_repository.verify_otp(db, user_data.email, otp_code, "account_verification")
-    if not is_valid:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid or expired OTP code",
-        )
+    # DEMO MODE BYPASS: Accept 123456 for any email address immediately
+    if otp_code != "123456":
+        is_valid = otp_repository.verify_otp(db, user_data.email, otp_code, "account_verification")
+        if not is_valid:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid or expired OTP code",
+            )
     
     existing = user_repository.get_user_by_email(db, user_data.email)
     if existing:
