@@ -18,7 +18,6 @@ class LoginJSON(BaseModel):
     password: str
 
 
-
 @router.post("/register", response_model=UserResponse, status_code=201)
 def register(user_data: UserCreate, otp_code: str, db: Session = Depends(get_db)):
     """Register a new user account with OTP verification."""
@@ -55,7 +54,6 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 def login_json(payload: LoginJSON, db: Session = Depends(get_db)):
     """Authenticate with JSON body instead of form data."""
     return auth_service.authenticate_user(db, payload.email, payload.password)
-
 
 
 @router.get("/me", response_model=UserResponse)

@@ -3,6 +3,9 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, text, desc
 from typing import List
 from datetime import datetime, timezone
+import logging
+
+logger = logging.getLogger(__name__)
 
 from models.database import get_db
 from models.user import User
