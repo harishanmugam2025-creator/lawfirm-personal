@@ -74,7 +74,9 @@ async def analyze_document_compliance(document_text: str) -> dict[str, Any]:
             "temperature": 0.1,
         }
         
-        headers = {}
+        headers = {
+            "Content-Type": "application/json"
+        }
         api_key = getattr(settings, "GROQ_API_KEY", None)
         if not api_key:
             logger.warning("GROQ_API_KEY is not set. API calls will likely fail.")

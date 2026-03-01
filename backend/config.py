@@ -13,7 +13,6 @@ class Settings(BaseSettings):
     
     OPA_URL: str = "http://localhost:8181"
     OLLAMA_URL: str = "https://api.groq.com/openai/v1/chat/completions"
-    OLLAMA_API_KEY: str | None = None
     GROQ_API_KEY: str | None = None
     
     # SendGrid Settings

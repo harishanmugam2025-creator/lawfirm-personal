@@ -56,10 +56,14 @@ Do not invent specific case names if not provided; only use provided info for sp
         "temperature": 0.3
     }
     
-    headers = {}
+    headers = {
+        "Content-Type": "application/json"
+    }
     api_key = getattr(settings, "GROQ_API_KEY", None)
     if api_key:
         headers["Authorization"] = f"Bearer {api_key}"
+    else:
+        logger.warning("GROQ_API_KEY not found in settings. AI summary may fail.")
 
     try:
         async with httpx.AsyncClient(timeout=INFERENCE_TIMEOUT) as client:
