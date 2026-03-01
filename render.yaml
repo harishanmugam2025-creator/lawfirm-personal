@@ -12,7 +12,8 @@ services:
         value: veritas-dev-secret-key-change-in-production
       - key: SENDGRID_API_KEY
         value: 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
-      - key: OLLAMA_API_KEY
-        value: aa79d579db464cb382bfa44c282cc694.g4URw6ipGwlWTcxyeu7krhCp
+      - key: GROQ_API_KEY
+        # DO NOT PASTE RAW KEY HERE - Set this in Render Dashboard -> Env Vars
+        sync: false 
       - key: OLLAMA_URL
-        value: https://ai-agent-vgaq.onrender.com
+        value: https://api.groq.com/openai/v1/chat/completions
