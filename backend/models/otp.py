@@ -8,7 +8,7 @@ class OTP(Base):
 
     email = Column(String, primary_key=True, index=True)
     otp_code = Column(String, nullable=False)
-    purpose = Column(String, nullable=False) # e.g., "account_verification", "password_reset"
+    purpose = Column(String, primary_key=True, nullable=False) # e.g., "account_verification", "password_reset"
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     expires_at = Column(DateTime, nullable=False)
     is_verified = Column(Boolean, default=False)
