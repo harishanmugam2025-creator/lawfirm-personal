@@ -12,11 +12,17 @@ async def test_analyze_compliance_success():
     """Test successful JSON parsing from Ollama."""
     mock_response = MagicMock()
     mock_response.json.return_value = {
-        "response": json.dumps({
-            "rules_triggered": "GDPR Article 5 violation",
-            "confidence_score": 0.95,
-            "source_text": "We sell user data without consent."
-        })
+        "choices": [
+            {
+                "message": {
+                    "content": json.dumps({
+                        "rules_triggered": "GDPR Article 5 violation",
+                        "confidence_score": 0.95,
+                        "source_text": "We sell user data without consent."
+                    })
+                }
+            }
+        ]
     }
 
     with patch("httpx.AsyncClient.post", return_value=mock_response):
@@ -32,7 +38,13 @@ async def test_analyze_compliance_invalid_json():
     """Test graceful degradation when Ollama returns non-JSON text."""
     mock_response = MagicMock()
     mock_response.json.return_value = {
-        "response": "I am an AI and I think this is compliant."
+        "choices": [
+            {
+                "message": {
+                    "content": "I am an AI and I think this is compliant."
+                }
+            }
+        ]
     }
 
     with patch("httpx.AsyncClient.post", return_value=mock_response):
