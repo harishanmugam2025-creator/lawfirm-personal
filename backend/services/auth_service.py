@@ -71,10 +71,11 @@ def send_registration_otp(db: Session, email: str):
     otp_code = otp_repository.generate_otp(db, email, "account_verification")
     success = email_service.send_otp_email(email, otp_code, "account_verification")
     if not success:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to send verification email. Please try again later or check system logs."
-        )
+        # DEMO MODE: Do not block the user if email fails (due to free-tier constraints).
+        # Log the error but allow them to proceed to the OTP screen to use the 123456 bypass.
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f"Failed to send real OTP email to {email}, but allowing Demo Bypass to proceed.")
     return True
 
 
