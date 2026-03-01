@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     
     # Resend Settings
     RESEND_API_KEY: str | None = None
-    RESEND_FROM_EMAIL: str | None = None
+    RESEND_FROM_EMAIL: str = "onboarding@resend.dev"
     
     # SMTP Settings (Alternative)
     SMTP_HOST: str | None = None
