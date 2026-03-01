@@ -10,14 +10,14 @@ from config import settings
 logger = logging.getLogger(__name__)
 
 # Default to local Ollama. In production, this points to the isolated AI pod.
-OLLAMA_URL = getattr(settings, "OLLAMA_URL", "http://localhost:11434")
-MODEL_NAME = "mistral"
+OLLAMA_URL = getattr(settings, "OLLAMA_URL", "https://api.groq.com/openai/v1/chat/completions")
+MODEL_NAME = "llama-3.1-8b-instant"
 INFERENCE_TIMEOUT = 30.0  # Strict 30s timeout per governance
 
 
 async def analyze_compliance(system_prompt: str, document_text: str) -> dict[str, Any]:
     """
-    Call Mistral 7B via Ollama to analyze the document text against the provided rules.
+    Call Llama 3 via Groq to analyze the document text against the provided rules.
     Enforces a structured JSON response to build the Reasoning Path.
     """
     # The prompt explicitly asks for the 3 required reasoning fields
@@ -35,30 +35,29 @@ DOCUMENT TEXT:
 
     payload = {
         "model": MODEL_NAME,
-        "prompt": full_prompt,
-        "format": "json",
-        "stream": False,
-        "options": {
-            "temperature": 0.1,  # Low temperature for deterministic analysis
-        }
+        "messages": [{"role": "user", "content": full_prompt}],
+        "response_format": {"type": "json_object"},
+        "temperature": 0.1,  # Low temperature for deterministic analysis
     }
 
     headers = {}
-    api_key = getattr(settings, "OLLAMA_API_KEY", None)
-    if api_key:
+    api_key = getattr(settings, "GROQ_API_KEY", None)
+    if not api_key:
+        logger.warning("GROQ_API_KEY is not set. API calls will likely fail.")
+    else:
         headers["Authorization"] = f"Bearer {api_key}"
 
     try:
         async with httpx.AsyncClient(timeout=INFERENCE_TIMEOUT) as client:
             response = await client.post(
-                f"{OLLAMA_URL}/api/generate", 
+                OLLAMA_URL, 
                 json=payload,
                 headers=headers
             )
             response.raise_for_status()
             
             data = response.json()
-            response_text = data.get("response", "{}")
+            response_text = data["choices"][0]["message"]["content"]
             
             try:
                 # Parse the guaranteed JSON

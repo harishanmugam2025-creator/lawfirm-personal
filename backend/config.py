@@ -12,8 +12,9 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/veritas"
     
     OPA_URL: str = "http://localhost:8181"
-    OLLAMA_URL: str = "http://localhost:11434"
+    OLLAMA_URL: str = "https://api.groq.com/openai/v1/chat/completions"
     OLLAMA_API_KEY: str | None = None
+    GROQ_API_KEY: str | None = None
     
     # SendGrid Settings
     SENDGRID_API_KEY: str = "SG.placeholder"

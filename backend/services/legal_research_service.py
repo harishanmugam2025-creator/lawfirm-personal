@@ -10,8 +10,8 @@ from schemas.legal_research import SearchQueryRequest, SearchResultResponse, Cas
 
 logger = logging.getLogger(__name__)
 
-OLLAMA_URL = getattr(settings, "OLLAMA_URL", "http://localhost:11434")
-MODEL_NAME = "mistral"
+OLLAMA_URL = getattr(settings, "OLLAMA_URL", "https://api.groq.com/openai/v1/chat/completions")
+MODEL_NAME = "llama-3.1-8b-instant"
 INFERENCE_TIMEOUT = 60.0
 
 async def perform_legal_research(db: Session, user_id: str, req: SearchQueryRequest) -> SearchResultResponse:
@@ -33,7 +33,7 @@ async def perform_legal_research(db: Session, user_id: str, req: SearchQueryRequ
     )
 
 async def _generate_research_summary(query: str, cases: List[Any]) -> str:
-    """Use Ollama to summarize the search results in context of the query."""
+    """Use Groq to summarize the search results in context of the query."""
     serialized_cases = ""
     for c in cases[:3]: # Summarize top 3
         serialized_cases += f"Case: {c.title}\nRuling: {c.key_ruling}\nSummary: {c.summary}\n\n"
@@ -52,17 +52,21 @@ Do not invent specific case names if not provided; only use provided info for sp
 
     payload = {
         "model": MODEL_NAME,
-        "prompt": prompt,
-        "stream": False,
-        "options": {"temperature": 0.3}
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.3
     }
+    
+    headers = {}
+    api_key = getattr(settings, "GROQ_API_KEY", None)
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
 
     try:
         async with httpx.AsyncClient(timeout=INFERENCE_TIMEOUT) as client:
-            response = await client.post(f"{OLLAMA_URL}/api/generate", json=payload)
+            response = await client.post(OLLAMA_URL, json=payload, headers=headers)
             response.raise_for_status()
             data = response.json()
-            return data.get("response", "AI summary unavailable.")
+            return data["choices"][0]["message"]["content"]
     except Exception as e:
         logger.error(f"Failed to generate research summary: {e}")
         return "AI analysis service is currently unavailable. Please review the case details below."

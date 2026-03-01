@@ -15,8 +15,8 @@ from config import settings
 
 logger = logging.getLogger(__name__)
 
-OLLAMA_URL = getattr(settings, "OLLAMA_URL", "http://localhost:11434")
-MODEL_NAME = "mistral"
+OLLAMA_URL = getattr(settings, "OLLAMA_URL", "https://api.groq.com/openai/v1/chat/completions")
+MODEL_NAME = "llama-3.1-8b-instant"
 INFERENCE_TIMEOUT = 120.0  # 120s for compliance analysis (longer docs)
 
 # Load the prompt template once at module level
@@ -53,7 +53,7 @@ _EMPTY_RESULT: dict[str, Any] = {
 
 async def analyze_document_compliance(document_text: str) -> dict[str, Any]:
     """
-    Send extracted document text to Ollama for GDPR/CCPA compliance analysis.
+    Send extracted document text to Groq for GDPR/CCPA compliance analysis.
     """
     from services.metrics_service import AI_INFERENCE_LATENCY
     
@@ -69,22 +69,26 @@ async def analyze_document_compliance(document_text: str) -> dict[str, Any]:
 
         payload = {
             "model": MODEL_NAME,
-            "prompt": full_prompt,
-            "format": "json",
-            "stream": False,
-            "options": {
-                "temperature": 0.1,
-            },
+            "messages": [{"role": "user", "content": full_prompt}],
+            "response_format": {"type": "json_object"},
+            "temperature": 0.1,
         }
+        
+        headers = {}
+        api_key = getattr(settings, "GROQ_API_KEY", None)
+        if not api_key:
+            logger.warning("GROQ_API_KEY is not set. API calls will likely fail.")
+        else:
+            headers["Authorization"] = f"Bearer {api_key}"
 
         try:
-            logger.info("Sending document (%d chars) to Ollama for compliance analysis...", len(document_text))
+            logger.info("Sending document (%d chars) to Groq for compliance analysis...", len(document_text))
             async with httpx.AsyncClient(timeout=INFERENCE_TIMEOUT) as client:
-                response = await client.post(f"{OLLAMA_URL}/api/generate", json=payload)
+                response = await client.post(OLLAMA_URL, json=payload, headers=headers)
                 response.raise_for_status()
 
                 data = response.json()
-                response_text = data.get("response", "{}")
+                response_text = data["choices"][0]["message"]["content"]
 
                 try:
                     result = json.loads(response_text)
@@ -97,14 +101,14 @@ async def analyze_document_compliance(document_text: str) -> dict[str, Any]:
                     
                     return normalized
                 except json.JSONDecodeError:
-                    logger.error("Ollama returned invalid JSON: %s", response_text)
+                    logger.error("Groq returned invalid JSON: %s", response_text)
                     return _error_result("AI model returned an malformed response.")
 
         except httpx.ReadTimeout:
-            logger.error("Ollama inference timed out after %d seconds.", INFERENCE_TIMEOUT)
+            logger.error("Groq inference timed out after %d seconds.", INFERENCE_TIMEOUT)
             return _error_result("AI analysis timed out. The document might be too complex.")
         except httpx.HTTPStatusError as exc:
-            logger.error("Ollama API error: %s", exc)
+            logger.error("Groq API error: %s", exc)
             return _error_result(f"AI service error: {exc.response.status_code}")
         except Exception as exc:
             logger.exception("Unexpected error during compliance analysis: %s", exc)
