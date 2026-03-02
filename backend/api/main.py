@@ -56,10 +56,11 @@ app.include_router(api_router)
 async def metrics():
     return get_metrics_response()
 
+from sqlalchemy import text
 @app.get("/api/ping-db")
 async def ping_db(db: Session = Depends(get_db)):
     try:
-        db.execute("SELECT 1")
+        db.execute(text("SELECT 1"))
         return {"status": "ok"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
