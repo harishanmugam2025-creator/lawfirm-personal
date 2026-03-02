@@ -129,7 +129,7 @@ export default function ForgotPasswordPage() {
             <CardDescription>
               {step === 1
                 ? "Enter your email for a verification code"
-                : "Enter the code sent to your email and your new password"}
+                : "Enter the code sent to your email (Demo: 123456) and your new password"}
             </CardDescription>
           </CardHeader>
 
