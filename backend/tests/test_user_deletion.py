@@ -17,32 +17,18 @@ from models.lawfirm_case import LawfirmCase
 from models.otp import OTP
 from services.auth_service import hash_password
 
-# In-memory SQLite for tests
-TEST_DATABASE_URL = "sqlite:///./test_deletion.db"
-engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+from api.main import app
+from models.database import get_db
+from models.user import User
+from models.document import Document
+from models.legal_research import SavedCase, LegalCase
+from models.timesheet import Timesheet
+from models.lawfirm_case import LawfirmCase
+from models.otp import OTP
+from services.auth_service import hash_password
 
-from sqlalchemy import event
-@event.listens_for(engine, "connect")
-def set_sqlite_pragma(dbapi_connection, connection_record):
-    cursor = dbapi_connection.cursor()
-    cursor.execute("PRAGMA foreign_keys=ON")
-    cursor.close()
-
-def override_get_db():
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-app.dependency_overrides[get_db] = override_get_db
-
-@pytest.fixture(autouse=True)
-def setup_db():
-    Base.metadata.create_all(bind=engine)
-    yield
-    Base.metadata.drop_all(bind=engine)
+# Use TestingSessionLocal from conftest
+from tests.conftest import TestingSessionLocal
 
 client = TestClient(app)
 

@@ -25,30 +25,11 @@ import services.opa_service # Ensure it is imported before patching
 from api.main import app
 from models.database import Base, get_db
 
-# ── Test database setup ──
+from api.main import app
+from models.database import get_db
 
-TEST_DATABASE_URL = "sqlite:///./test_veritas.db"
-engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-def override_get_db():
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
-
-
-@pytest.fixture(autouse=True)
-def setup_db():
-    Base.metadata.create_all(bind=engine)
-    yield
-    Base.metadata.drop_all(bind=engine)
-
+# Use TestingSessionLocal from conftest
+from tests.conftest import TestingSessionLocal
 
 client = TestClient(app)
 

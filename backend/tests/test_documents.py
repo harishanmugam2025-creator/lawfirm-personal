@@ -10,31 +10,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from api.main import app
-from models.database import Base, get_db
+from models.database import get_db
 
-# In-memory SQLite for tests
-TEST_DATABASE_URL = "sqlite:///./test_veritas.db"
-engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-def override_get_db():
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
-
-
-@pytest.fixture(autouse=True)
-def setup_db():
-    """Create tables before each test, drop after."""
-    Base.metadata.create_all(bind=engine)
-    yield
-    Base.metadata.drop_all(bind=engine)
+# Use TestingSessionLocal from conftest
+from tests.conftest import TestingSessionLocal
 
 
 # Mock OPA to always allow (matches pre-OPA behaviour)

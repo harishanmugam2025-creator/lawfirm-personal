@@ -8,33 +8,10 @@ from datetime import datetime, timedelta, timezone
 os.environ["TESTING"] = "true"
 
 from api.main import app
-from models.database import Base, get_db
+from models.database import get_db
 from models.otp import OTP
-
-# In-memory SQLite for tests
-TEST_DATABASE_URL = "sqlite:///./test_veritas.db"
-engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-def override_get_db():
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
-
-
-@pytest.fixture(autouse=True)
-def setup_db():
-    """Create tables before each test, drop after."""
-    Base.metadata.create_all(bind=engine)
-    yield
-    Base.metadata.drop_all(bind=engine)
-
+# Import shared test components from conftest (implicit, but for helpers we use sessionmaker)
+from tests.conftest import TestingSessionLocal
 
 client = TestClient(app)
 

@@ -12,23 +12,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from api.main import app
-from models.database import Base, get_db
+from api.main import app
+from models.database import get_db
 
-TEST_DATABASE_URL = "sqlite:///./test_veritas.db"
-
-test_engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
-
-
-def override_get_db():
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
+# Use TestingSessionLocal from conftest
+from tests.conftest import TestingSessionLocal
 
 
 @pytest.fixture(autouse=True)
@@ -46,8 +34,7 @@ def mock_opa():
 @pytest.mark.asyncio
 async def test_end_to_end_ai_analysis():
     """Validates the full Analysis persistence and Reasoning Path flow."""
-    Base.metadata.drop_all(bind=test_engine)
-    Base.metadata.create_all(bind=test_engine)
+    # setup_db fixture handles create_all/drop_all
 
     # 1. Start application with TestClient
     transport = ASGITransport(app=app)
@@ -69,13 +56,10 @@ async def test_end_to_end_ai_analysis():
 
         # Mock OTP
         from models.otp import OTP
-        from sqlalchemy import create_engine
-        from sqlalchemy.orm import sessionmaker
-        engine = create_engine("sqlite:///./test_veritas.db", connect_args={"check_same_thread": False})
-        TestingSessionLocal2 = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
         from datetime import datetime, timedelta, timezone
-        db = TestingSessionLocal2()
+
+        db = TestingSessionLocal()
+        expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
         expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
         db.add(OTP(
             email=partner_data["email"],
