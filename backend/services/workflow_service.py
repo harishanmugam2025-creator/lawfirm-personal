@@ -116,10 +116,18 @@ def update_workflow(
     workflow_id: str,
     data: WorkflowUpdate,
     user_id: str,
+    *,
+    can_manage_all: bool = False,
 ):
-    """Update an existing workflow. Only the creator can update."""
+    """Update an existing workflow. Only the creator (or manager) can update."""
     wf = workflow_repository.get_workflow_by_id(db, workflow_id)
-    if not wf or wf.created_by != user_id:
+    if not wf:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Workflow not found.",
+        )
+    
+    if not can_manage_all and wf.created_by != user_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Workflow not found.",
@@ -159,10 +167,16 @@ def update_workflow(
     return updated_wf
 
 
-def delete_workflow(db: Session, workflow_id: str, user_id: str):
-    """Delete a workflow. Only the creator (or partner with delete perm) can delete."""
+def delete_workflow(db: Session, workflow_id: str, user_id: str, *, can_manage_all: bool = False):
+    """Delete a workflow. Only the creator (or manager) can delete."""
     wf = workflow_repository.get_workflow_by_id(db, workflow_id)
-    if not wf or wf.created_by != user_id:
+    if not wf:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Workflow not found.",
+        )
+    
+    if not can_manage_all and wf.created_by != user_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Workflow not found.",

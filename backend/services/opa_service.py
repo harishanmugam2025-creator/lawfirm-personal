@@ -26,6 +26,7 @@ _FALLBACK_PERMISSIONS = {
         "rbac": ["list", "update"],
         "system": ["read", "write"],
         "documents": ["view_all", "upload", "delete_any"],
+        "workflows": ["list", "create", "delete", "view_all", "update"],
         "ai_analysis": ["view_any"],
         "audit_logs": ["view_all", "view_own"],
     },

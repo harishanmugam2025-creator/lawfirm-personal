@@ -95,8 +95,13 @@ async def update_workflow(
     current_user: User = Depends(require_permission("workflows", "create")),
     db: Session = Depends(get_db),
 ):
-    """Update an existing workflow. Only the creator can update."""
-    workflow = workflow_service.update_workflow(db, workflow_id, data, current_user.id)
+    """Update an existing workflow. Creators or managers can update."""
+    can_manage_all = await opa_service.check_permission(
+        current_user.role, "workflows", "view_all"
+    )
+    workflow = workflow_service.update_workflow(
+        db, workflow_id, data, current_user.id, can_manage_all=can_manage_all
+    )
     
     audit_service.log_action(
         db,
@@ -115,8 +120,11 @@ async def delete_workflow(
     current_user: User = Depends(require_permission("workflows", "delete")),
     db: Session = Depends(get_db),
 ):
-    """Delete a workflow. Requires 'workflows/delete' permission."""
-    workflow_service.delete_workflow(db, workflow_id, current_user.id)
+    """Delete a workflow. Requires 'workflows/delete' permission. Managers can delete any."""
+    can_manage_all = await opa_service.check_permission(
+        current_user.role, "workflows", "view_all"
+    )
+    workflow_service.delete_workflow(db, workflow_id, current_user.id, can_manage_all=can_manage_all)
     
     audit_service.log_action(
         db,
