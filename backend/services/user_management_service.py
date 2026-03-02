@@ -12,6 +12,14 @@ from repositories import user_repository
 from schemas.auth import AdminUserCreate, AdminUserUpdate
 from services.auth_service import hash_password
 from services.email_service import email_service
+from models.legal_research import SavedCase, ResearchQuery
+from models.document import Document
+from models.lawfirm_case import LawfirmCase
+from models.lawfirm_task import LawfirmTask
+from models.timesheet import Timesheet
+from models.workflow import Workflow
+from models.execution import WorkflowExecution
+from models.analysis import AnalysisResult
 
 logger = logging.getLogger(__name__)
 
@@ -190,6 +198,28 @@ def admin_delete_user(db: Session, user_id: str, deleted_by: str):
         )
 
     user_email = user.email
+    
+    # Manually delete related records to support databases without CASCADE constraints
+    try:
+        db.query(SavedCase).filter(SavedCase.user_id == user_id).delete()
+        db.query(ResearchQuery).filter(ResearchQuery.user_id == user_id).delete()
+        db.query(Document).filter(Document.uploaded_by == user_id).delete()
+        db.query(LawfirmCase).filter(LawfirmCase.assigned_to == user_id).delete()
+        db.query(LawfirmTask).filter(LawfirmTask.assigned_to == user_id).delete()
+        db.query(Timesheet).filter(Timesheet.user_id == user_id).delete()
+        db.query(WorkflowExecution).filter(WorkflowExecution.triggered_by == user_id).delete()
+        db.query(Workflow).filter(Workflow.created_by == user_id).delete()
+        db.query(AnalysisResult).filter(AnalysisResult.analyzed_by == user_id).delete()
+        
+        db.commit() # Commit deletions before deleting the user
+    except Exception as e:
+        db.rollback()
+        logger.error("Failed to delete related records for user %s: %s", user_id, str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to clean up user data: {str(e)}"
+        )
+
     user_repository.delete_user(db, user)
 
     logger.info("Admin %s deleted user %s (%s)", deleted_by, user_id, user_email)
