@@ -23,34 +23,64 @@ def seed_legal_cases():
 
         cases = [
             {
+                "title": "Amazon GDPR Violation",
+                "court": "CNPD (Luxembourg)",
+                "jurisdiction": "European Union",
+                "year": 2021,
+                "regulation": "GDPR",
+                "summary": "Fined €746,000,000 by CNPD for Non-compliance with GDPR principles related to targeted advertising.",
+                "full_text": "The Luxembourg data protection authority (CNPD) issued a record fine against Amazon Europe Core S.à r.l. for its processing of personal data for behavioral advertising purposes in violation of the GDPR. The case highlighted the importance of valid consent for tracking and profiling.",
+                "key_ruling": "Record GDPR fine for unlawful targeted advertising profiling."
+            },
+            {
+                "title": "TikTok GDPR Violation",
+                "court": "Data Protection Commission (Ireland)",
+                "jurisdiction": "European Union",
+                "year": 2023,
+                "regulation": "GDPR",
+                "summary": "Fined €345,000,000 by DPC for Violations related to children's data and dark patterns.",
+                "full_text": "Ireland's DPC penalized TikTok for failing to protect the privacy of children using its platform, including default public settings for accounts and the use of 'dark patterns' that nudged users towards less privacy-friendly options.",
+                "key_ruling": "Significant fine for children's privacy violations and dark pattern usage."
+            },
+            {
+                "title": "Sephora CCPA Violation",
+                "court": "California Office of the Attorney General",
+                "jurisdiction": "USA - California",
+                "year": 2022,
+                "regulation": "CCPA",
+                "summary": "Fined $1,200,000 by OAG for CCPA violation for selling customer data without opt-out notice.",
+                "full_text": "The California Attorney General announced a settlement with Sephora, Inc. for failing to disclose it was selling personal information, failing to process opt-out requests via Global Privacy Control, and failing to cure violations within the 30-day period.",
+                "key_ruling": "First major CCPA enforcement action regarding the sale of personal data."
+            },
+            {
+                "title": "British Airways GDPR Violation",
+                "court": "Information Commissioner's Office (UK)",
+                "jurisdiction": "United Kingdom",
+                "year": 2020,
+                "regulation": "GDPR",
+                "summary": "Fined £20,000,000 by ICO for Data breach notification failure and poor security affecting 400k customers.",
+                "full_text": "The ICO fined British Airways after the personal and financial details of more than 400,000 customers were compromised in a 2018 cyberattack. The investigation found that BA was processing a significant amount of data without adequate security measures.",
+                "key_ruling": "Substantial fine for insufficient technical and organizational security measures."
+            },
+            {
+                "title": "H&M GDPR Violation",
+                "court": "BfDI (Germany)",
+                "jurisdiction": "European Union",
+                "year": 2020,
+                "regulation": "GDPR",
+                "summary": "Fined €35,258,707 by BfDI for Illegal surveillance of employees in Nuremberg service center.",
+                "full_text": "The German data protection authority fined H&M for extensively monitoring employees' private lives at its service center in Nuremberg, including recording details about family issues, religious beliefs, and health history.",
+                "key_ruling": "Major penalty for intrusive employee monitoring and lack of data minimization."
+            },
+            {
                 "title": "Planet49 GmbH v Bundesverband",
                 "court": "European Court of Justice (ECJ)",
                 "jurisdiction": "European Union",
                 "year": 2019,
                 "regulation": "GDPR",
                 "summary": "The court ruled that pre-ticked consent boxes do not constitute valid consent under GDPR. Consent must be active and freely given.",
-                "full_text": "In Case C-673/17, the Court of Justice of the European Union ruled that Article 6(1)(a) of Regulation 2016/679 (GDPR) must be interpreted as meaning that consent is not validly constituted by way of a pre-ticked checkbox which the user must deselect to refuse his consent. This establishes the standard for opt-in consent mechanisms across the EU.",
+                "full_text": "In Case C-673/17, the Court of Justice of the European Union ruled that Article 6(1)(a) of Regulation 2016/679 (GDPR) must be interpreted as meaning that consent is not validly constituted by way of a pre-ticked checkbox which the user must deselect to refuse his consent.",
                 "key_ruling": "Pre-ticked checkboxes are invalid for GDPR consent; explicit action is required."
-            },
-            {
-                "title": "Fashion ID GmbH & Co. KG v Verbraucherzentrale NRW e.V.",
-                "court": "European Court of Justice (ECJ)",
-                "jurisdiction": "European Union",
-                "year": 2019,
-                "regulation": "GDPR",
-                "summary": "This case established that website operators using third-party social plugins (like the Facebook 'Like' button) are joint controllers regarding the collection and transmission of personal data.",
-                "full_text": "The ECJ ruled that a website operator that embeds a social plugin can be considered a joint controller with the plugin provider. This means the operator must provide information to users at the time of collection and obtain consent if necessary under Article 6(1)(a).",
-                "key_ruling": "Website operators are joint controllers for data collected via third-party plugins."
-            },
-            {
-                "title": "DPB v Yahoo! Inc.",
-                "court": "California Superior Court",
-                "jurisdiction": "USA - California",
-                "year": 2020,
-                "regulation": "CCPA",
-                "summary": "One of the early class actions citing CCPA violations following a massive data breach. It highlighted the importance of 'reasonable security procedures'.",
-                "full_text": "The litigation focused on whether Yahoo! failed to maintain reasonable security procedures, leading to unauthorized access to user data. Under CCPA, consumers have a private right of action in cases of data breaches resulting from a business's failure to implement reasonable security.",
-                "key_ruling": "Private right of action under CCPA is triggered by failure to maintain reasonable security."
             },
             {
                 "title": "Schrems II (Data Protection Commissioner v Facebook Ireland Ltd)",
@@ -59,18 +89,8 @@ def seed_legal_cases():
                 "year": 2020,
                 "regulation": "GDPR",
                 "summary": "Invalidated the EU-US Privacy Shield due to concerns about US surveillance programs and insufficient protection for EU data subjects.",
-                "full_text": "The court found that US law (Section 702 FISA and EO 12333) does not provide data protection equivalent to GDPR. Standard Contractual Clauses (SCCs) remain valid but require additional safeguards if the destination country lacks adequate protections.",
+                "full_text": "The court found that US law does not provide data protection equivalent to GDPR. Standard Contractual Clauses (SCCs) remain valid but require additional safeguards if the destination country lacks adequate protections.",
                 "key_ruling": "EU-US Privacy Shield invalidated; SCCs require 'supplementary measures'."
-            },
-            {
-                "title": "Google Spain SL, Google Inc. v Agencia Española de Protección de Datos",
-                "court": "European Court of Justice (ECJ)",
-                "jurisdiction": "European Union",
-                "year": 2014,
-                "regulation": "GDPR",
-                "summary": "This seminal case established the 'Right to be Forgotten'. Individual data subjects have the right to request search engines to delist links to personal information that is inadequate, irrelevant, or no longer relevant.",
-                "full_text": "In Case C-131/12, the ECJ ruled that search engine operators are responsible for the processing of personal data which appears on web pages published by third parties. The ruling granted individuals the right to request that search engines remove links to personal info under certain conditions, even if the publication on the original site is lawful.",
-                "key_ruling": "Established the 'Right to be Forgotten' in the EU legal framework."
             }
         ]
 

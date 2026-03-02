@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     OLLAMA_URL: str = "https://api.groq.com/openai/v1/chat/completions"
     GROQ_API_KEY: str | None = None
     
+    # Legal Data APIs
+    COURTLISTENER_API_TOKEN: str | None = None
+    
     # SendGrid Settings
     SENDGRID_API_KEY: str = "SG.placeholder"
     SENDGRID_FROM_EMAIL: str = "ravanthsri20@gmail.com"
