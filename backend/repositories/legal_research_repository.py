@@ -13,11 +13,11 @@ def create_case(db: Session, case_data: CaseCreate) -> LegalCase:
 def search_cases(db: Session, req: SearchQueryRequest) -> List[LegalCase]:
     query = db.query(LegalCase)
     
-    if req.jurisdiction:
+    if req.jurisdiction and req.jurisdiction != "All Regions":
         query = query.filter(LegalCase.jurisdiction == req.jurisdiction)
     if req.year:
         query = query.filter(LegalCase.year == req.year)
-    if req.regulation:
+    if req.regulation and req.regulation != "All Regulations":
         query = query.filter(LegalCase.regulation == req.regulation)
     
     # Match mult-word queries by checking if ANY of the words exist in the fields
