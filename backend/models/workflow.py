@@ -16,7 +16,7 @@ class Workflow(Base):
     # React Flow nodes & edges stored as JSON strings
     nodes_json = Column(Text, nullable=False, default="[]")
     edges_json = Column(Text, nullable=False, default="[]")
-    created_by = Column(String, ForeignKey("users.id"), nullable=False)
+    created_by = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(

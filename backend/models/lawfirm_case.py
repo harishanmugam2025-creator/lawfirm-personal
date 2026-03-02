@@ -12,7 +12,7 @@ class LawfirmCase(Base):
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     title = Column(String, nullable=False)
     client_id = Column(String, ForeignKey("clients.id"), nullable=False)
-    assigned_to = Column(String, ForeignKey("users.id"), nullable=False)
+    assigned_to = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     status = Column(SAEnum("open", "closed", "on_hold", "under_review", "in_litigation", "pending_documents", "delayed", name="case_status"), default="open")
     case_type = Column(String, default="Civil")  # e.g., Civil, Criminal, Corporate
     jurisdiction = Column(String, nullable=True)

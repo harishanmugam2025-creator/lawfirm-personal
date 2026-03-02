@@ -27,7 +27,7 @@ class WorkflowExecution(Base):
         default="queued",
     )
 
-    triggered_by = Column(String, ForeignKey("users.id"), nullable=False, index=True)
+    triggered_by = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     started_at = Column(DateTime, nullable=True)
     finished_at = Column(DateTime, nullable=True)
     error_message = Column(String, nullable=True)

@@ -221,7 +221,11 @@ function EditUserModal({ open, user, onClose, onUpdated }) {
 
   useEffect(() => {
     if (user) {
-      setForm({ name: user.name || "", role: user.role, password: "" });
+      setForm({ 
+        name: user.name || "", 
+        role: user.role || "paralegal", 
+        password: "" 
+      });
       setError("");
     }
   }, [user]);
@@ -715,6 +719,7 @@ export default function UserManagementPage() {
         onCreated={fetchUsers}
       />
       <EditUserModal
+        key={editUser?.id || "none"}
         open={!!editUser}
         user={editUser}
         onClose={() => setEditUser(null)}

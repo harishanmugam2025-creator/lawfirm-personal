@@ -15,5 +15,5 @@ class Document(Base):
     size_bytes = Column(Integer, nullable=False)
     extracted_text = Column(Text, nullable=True)
     disk_path = Column(String, nullable=False)
-    uploaded_by = Column(String, ForeignKey("users.id"), nullable=False)
+    uploaded_by = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
