@@ -159,8 +159,8 @@ def delete_document(
         )
     if not can_access_any and doc.uploaded_by != user_id:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Document not found.",
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to delete this document.",
         )
 
     # Remove file from MinIO or Local Storage

@@ -386,8 +386,12 @@ export default function DocumentsPage() {
       setDocuments((prev) => prev.filter((d) => d.id !== docToDelete));
       if (selectedDoc?.id === docToDelete) setSelectedDoc(null);
       toast.success("Document deleted successfully");
-    } catch {
-      toast.error("Failed to delete document.");
+    } catch (err) {
+      if (err.response?.status === 403) {
+        toast.error("You don't have permission to delete this document.");
+      } else {
+        toast.error(err.response?.data?.detail || "Failed to delete document.");
+      }
     } finally {
       setDocToDelete(null);
     }
