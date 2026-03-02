@@ -38,11 +38,12 @@ async def perform_legal_research(db: Session, user_id: str, req: SearchQueryRequ
     
     case_responses = []
     for c in all_cases:
-        if hasattr(c, "model_validate"):
-            case_responses.append(CaseResponse.model_validate(c))
-        else:
+        if isinstance(c, dict):
             # It's a dict from the external API
             case_responses.append(CaseResponse(**c))
+        else:
+            # It's a SQLAlchemy model instance
+            case_responses.append(CaseResponse.model_validate(c))
 
     return SearchResultResponse(
         cases=case_responses,
@@ -64,7 +65,8 @@ async def _search_external_cases(query: str) -> List[dict]:
         "page_size": 10
     }
     headers = {
-        "Authorization": f"Token {token}"
+        "Authorization": f"Token {token}",
+        "User-Agent": "Veritas-AI-Research (contact: harishanmugam125@gmail.com)"
     }
 
     try:
